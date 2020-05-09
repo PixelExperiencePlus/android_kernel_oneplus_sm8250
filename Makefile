@@ -443,6 +443,17 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -Wno-format-security -Wno-unsequenced -Wno-void-pointer-to-int-cast -Wno-unused-variable -Wno-pointer-to-int-cast -Wno-pointer-to-enum-cast \
 		   -Wno-fortify-source -Wno-strlcpy-strlcat-size \
 		   -std=gnu89
+
+# Enable Clang Polly optimizations
+KBUILD_CFLAGS	+= -mllvm -polly \
+		   -mllvm -polly-run-dce \
+		   -mllvm -polly-run-inliner \
+		   -mllvm -polly-opt-fusion=max \
+		   -mllvm -polly-ast-use-context \
+		   -mllvm -polly-detect-keep-going \
+		   -mllvm -polly-vectorizer=stripmine \
+		   -mllvm -polly-invariant-load-hoisting
+
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
