@@ -690,6 +690,9 @@ KBUILD_CFLAGS	+= -mllvm -polly \
 		   -mllvm -polly-vectorizer=stripmine \
 		   -mllvm -polly-invariant-load-hoisting
 
+#LTO should have O2
+LDFLAGS += --lto-O2
+
 # Enable Clang Polly optimizations
 KBUILD_CFLAGS	+= -mllvm -polly \
 		   -mllvm -polly-run-dce \
