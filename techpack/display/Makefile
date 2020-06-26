@@ -9,14 +9,6 @@ ifeq ($(CONFIG_ARCH_KONA), y)
 LINUXINCLUDE    += -include $(srctree)/techpack/display/config/konadispconf.h
 endif
 
-ifeq ($(CONFIG_ARCH_INSTANTNOODLE), y)
-include $(srctree)/techpack/display/config/instantnoodledisp.conf
-endif
-
-ifeq ($(CONFIG_ARCH_INSTANTNOODLE), y)
-LINUXINCLUDE    += -include $(srctree)/techpack/display/config/instantnoodledispconf.h
-endif
-
 ifeq ($(CONFIG_ARCH_LITO), y)
 include $(srctree)/techpack/display/config/saipdisp.conf
 endif
