@@ -2,11 +2,27 @@
 
 # auto-detect subdirs
 ifeq ($(CONFIG_ARCH_KONA), y)
+ifeq ($(CONFIG_ARCH_INSTANTNOODLE), y)
+include $(srctree)/techpack/display/config/instantnoodledisp.conf
+else
+ifeq ($(CONFIG_ARCH_INSTANTNOODLEP), y)
+include $(srctree)/techpack/display/config/instantnoodlepdisp.conf
+else
 include $(srctree)/techpack/display/config/konadisp.conf
+endif
+endif
 endif
 
 ifeq ($(CONFIG_ARCH_KONA), y)
+ifeq ($(CONFIG_ARCH_INSTANTNOODLE), y)
+LINUXINCLUDE    += -include $(srctree)/techpack/display/config/instantnoodledispconf.h
+else
+ifeq ($(CONFIG_ARCH_INSTANTNOODLEP), y)
+LINUXINCLUDE    += -include $(srctree)/techpack/display/config/instantnoodlepdispconf.h
+else
 LINUXINCLUDE    += -include $(srctree)/techpack/display/config/konadispconf.h
+endif
+endif
 endif
 
 ifeq ($(CONFIG_ARCH_LITO), y)
