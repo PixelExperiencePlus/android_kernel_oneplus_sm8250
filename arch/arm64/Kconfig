@@ -298,7 +298,7 @@ config ARCH_PROC_KCORE_TEXT
 config ARCH_INSTANTNOODLE
 	bool "OnePlus 8 support"
 
-config ARCH_INSTANTNOODLEＰ
+config ARCH_INSTANTNOODLEP
 	bool "OnePlus 8 Pro support"
 
 source "arch/arm64/Kconfig.platforms"
