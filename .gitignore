@@ -141,3 +141,20 @@ kernel/configs/android-*.cfg
 
 # Tech package directories
 #techpack/
+
+*.rej
+*.diff
+*.patch
+*.list
+
+# Kernel compilation output directory
+out/
+
+# Wireguard
+net/wireguard/
+
+# Build script and changelog generator
+buildkernel.sh
+clean.sh
+changelog.sh
+
