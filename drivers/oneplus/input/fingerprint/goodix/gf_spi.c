@@ -647,7 +647,7 @@ static const struct attribute_group gf_attribute_group = {
 static struct fp_underscreen_info fp_tpinfo ={0};
 int opticalfp_irq_handler(struct fp_underscreen_info* tp_info)
 {
-	pr_info("[info]:%s", __func__);
+	pr_debug("[info]:%s", __func__);
 
 	if (gf.spi == NULL) {
 		return 0;
@@ -655,11 +655,11 @@ int opticalfp_irq_handler(struct fp_underscreen_info* tp_info)
 	fp_tpinfo = *tp_info;
 
 	if (fp_tpinfo.touch_state == 1) {
-		pr_err("TOUCH DOWN, fp_tpinfo.x = %d, fp_tpinfo.y = %d \n", fp_tpinfo.x, fp_tpinfo.y);
+		pr_debug("TOUCH DOWN, fp_tpinfo.x = %d, fp_tpinfo.y = %d \n", fp_tpinfo.x, fp_tpinfo.y);
 		fp_tpinfo.touch_state = GF_NET_EVENT_TP_TOUCHDOWN;
 		sendnlmsg_tp(&fp_tpinfo,sizeof(fp_tpinfo));
 	} else if (fp_tpinfo.touch_state == 0) {
-		pr_err("TOUCH UP, fp_tpinfo.x = %d, fp_tpinfo.y = %d \n", fp_tpinfo.x, fp_tpinfo.y);
+		pr_debug("TOUCH UP, fp_tpinfo.x = %d, fp_tpinfo.y = %d \n", fp_tpinfo.x, fp_tpinfo.y);
 		fp_tpinfo.touch_state = GF_NET_EVENT_TP_TOUCHUP;
 		sendnlmsg_tp(&fp_tpinfo,sizeof(fp_tpinfo));
 	}
@@ -671,7 +671,7 @@ int gf_opticalfp_irq_handler(int event)
 {
 	char msg = 0;
 
-	pr_info("[info]:%s, event %d", __func__, event);
+	pr_debug("[info]:%s, event %d", __func__, event);
 
 	if (gf.spi == NULL) {
 		return 0;
@@ -735,7 +735,7 @@ static int goodix_fb_state_chg_callback(struct notifier_block *nb,
 			}
 			break;
 		default:
-			pr_info("%s defalut\n", __func__);
+			pr_debug("%s defalut\n", __func__);
 			break;
 		}
 	}
@@ -763,21 +763,21 @@ static int goodix_fb_state_chg_callback(
 	blank = *(int *)(evdata->data);
 
 	if (val == DRM_PANEL_ONSCREENFINGERPRINT_EVENT) {
-		pr_info("[%s] UI ready enter\n", __func__);
+		pr_debug("[%s] UI ready enter\n", __func__);
 
 		switch (blank) {
 		case 0:
-			pr_info("[%s] UI disappear\n", __func__);
+			pr_debug("[%s] UI disappear\n", __func__);
 			msg = GF_NET_EVENT_UI_DISAPPEAR;
 			sendnlmsg(&msg);
 			break;
 		case 1:
-			pr_info("[%s] UI ready\n", __func__);
+			pr_debug("[%s] UI ready\n", __func__);
 			msg = GF_NET_EVENT_UI_READY;
 			sendnlmsg(&msg);
 			break;
 		default:
-			pr_info("[%s] Unknown EVENT\n", __func__);
+			pr_debug("[%s] Unknown EVENT\n", __func__);
 			break;
 		}
 		return 0;
@@ -793,7 +793,7 @@ static int goodix_fb_state_chg_callback(
 				gf_dev->fb_black = 1;
 #if defined(GF_NETLINK_ENABLE)
 				msg = GF_NET_EVENT_FB_BLACK;
-				pr_info("[%s] SCREEN OFF\n", __func__);
+				pr_debug("[%s] SCREEN OFF\n", __func__);
 				sendnlmsg(&msg);
 #elif defined(GF_FASYNC)
 				if (gf_dev->async) {
@@ -811,7 +811,7 @@ static int goodix_fb_state_chg_callback(
 				gf_dev->fb_black = 0;
 #if defined(GF_NETLINK_ENABLE)
 				msg = GF_NET_EVENT_FB_UNBLACK;
-				pr_info("[%s] SCREEN ON\n", __func__);
+				pr_debug("[%s] SCREEN ON\n", __func__);
 				sendnlmsg(&msg);
 #elif defined(GF_FASYNC)
 				if (gf_dev->async)
@@ -824,7 +824,7 @@ static int goodix_fb_state_chg_callback(
 				NULL, dev_attr_screen_state.attr.name);
 			break;
 		default:
-			pr_info("%s defalut\n", __func__);
+			pr_debug("%s defalut\n", __func__);
 			break;
 		}
 	}
