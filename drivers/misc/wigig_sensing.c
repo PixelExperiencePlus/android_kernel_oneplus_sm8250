@@ -1426,7 +1426,7 @@ finish_data_ready:
 	 * cleared
 	 */
 	if ((spi_status.v & CLEAR_LOW_23_BITS) != 0)
-		pr_err("Unexpected interrupt received, spi_status=0x%X\n",
+		pr_err("Unexpected interrupt received, spi_status=0x%lX\n",
 		       spi_status.v & CLEAR_LOW_23_BITS);
 
 deassert_and_bail_out:
@@ -1464,7 +1464,7 @@ static int wigig_sensing_debugfs_spi_stats_show(struct seq_file *s, void *data)
 		u64 acc = atomic64_read(&ss->acc);
 		u64 num_meas = atomic_read(&ss->num_meas);
 
-		seq_printf(s, "|%18s|%10lu|%10lu|%15llu|%10lu|%10lu|\n",
+		seq_printf(s, "|%18s|%10llu|%10llu|%15llu|%10llu|%10llu|\n",
 			   ss->name,
 			   ktime_to_us(min),
 			   ktime_to_us(max),
