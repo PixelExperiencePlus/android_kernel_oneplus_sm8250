@@ -973,6 +973,9 @@ struct task_struct {
 #ifdef CONFIG_CGROUP_SCHED
 	struct task_group		*sched_task_group;
 #endif
+#ifdef CONFIG_SCHED_TUNE
+	int				stune_idx;
+#endif
 	struct sched_dl_entity		dl;
 
 #ifdef CONFIG_UCLAMP_TASK
@@ -1582,6 +1585,8 @@ struct task_struct {
 #ifdef CONFIG_ONEPLUS_FG_OPT
 	int fuse_boost;
 #endif
+	/* task is frozen/stopped (used by the cgroup freezer) */
+	ANDROID_KABI_USE(1, unsigned frozen:1);
 
 #ifdef CONFIG_ONEPLUS_HEALTHINFO
 	int stuck_trace;

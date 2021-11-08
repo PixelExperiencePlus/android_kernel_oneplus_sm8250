@@ -129,6 +129,7 @@ static inline struct qrtr_sock *qrtr_sk(struct sock *sk)
 }
 
 static unsigned int qrtr_local_nid = 1;
+static unsigned int qrtr_wakeup_ms = CONFIG_QRTR_WAKEUP_MS;
 
 /* for node ids */
 static RADIX_TREE(qrtr_nodes, GFP_KERNEL);
@@ -780,7 +781,7 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
 	unsigned int ver;
 	size_t hdrlen;
 
-	if (len & 3)
+	if (len == 0 || len & 3)
 		return -EINVAL;
 
 	skb = alloc_skb_with_frags(sizeof(*v1), len, 0, &errcode, GFP_ATOMIC);
@@ -800,6 +801,8 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
 
 	switch (ver) {
 	case QRTR_PROTO_VER_1:
+		if (len < sizeof(*v1))
+			goto err;
 		v1 = data;
 		hdrlen = sizeof(*v1);
 
@@ -813,6 +816,8 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
 		size = le32_to_cpu(v1->size);
 		break;
 	case QRTR_PROTO_VER_2:
+		if (len < sizeof(*v2))
+			goto err;
 		v2 = data;
 		hdrlen = sizeof(*v2) + v2->optlen;
 
@@ -845,7 +850,7 @@ int qrtr_endpoint_post(struct qrtr_endpoint *ep, const void *data, size_t len)
 	    cb->type != QRTR_TYPE_RESUME_TX)
 		goto err;
 
-	pm_wakeup_ws_event(node->ws, 0, true);
+	pm_wakeup_ws_event(node->ws, qrtr_wakeup_ms, true);
 
 	skb->data_len = size;
 	skb->len = size;
@@ -1344,9 +1349,9 @@ static int qrtr_port_assign(struct qrtr_sock *ipc, int *port)
 		if (rc >= 0)
 			*port = rc;
 	} else if (*port < QRTR_MIN_EPH_SOCKET &&
-		   !(capable(CAP_NET_ADMIN) ||
-		   in_egroup_p(AID_VENDOR_QRTR) ||
-		   in_egroup_p(GLOBAL_ROOT_GID))) {
+			!(capable(CAP_NET_ADMIN) ||
+				in_egroup_p(AID_VENDOR_QRTR) ||
+				in_egroup_p(GLOBAL_ROOT_GID))) {
 		rc = -EACCES;
 	} else if (*port == QRTR_PORT_CTRL) {
 		rc = idr_alloc(&qrtr_ports, ipc, 0, 1, GFP_ATOMIC);
@@ -1534,7 +1539,7 @@ static int qrtr_bcast_enqueue(struct qrtr_node *node, struct sk_buff *skb,
 	}
 	up_read(&qrtr_node_lock);
 
-	qrtr_local_enqueue(node, skb, type, from, to, flags);
+	qrtr_local_enqueue(NULL, skb, type, from, to, flags);
 
 	return 0;
 }
@@ -1706,6 +1711,7 @@ static int qrtr_recvmsg(struct socket *sock, struct msghdr *msg,
 
 	if (sock_flag(sk, SOCK_ZAPPED)) {
 		release_sock(sk);
+		pr_err("%s: Invalid addr error\n", __func__);
 		return -EADDRNOTAVAIL;
 	}
 
@@ -1724,11 +1730,18 @@ static int qrtr_recvmsg(struct socket *sock, struct msghdr *msg,
 	}
 
 	rc = skb_copy_datagram_msg(skb, 0, msg, copied);
-	if (rc < 0)
+	if (rc < 0) {
+		pr_err("%s: Failed to copy skb rc[%d]\n", __func__, rc);
 		goto out;
+	}
 	rc = copied;
 
 	if (addr) {
+		/* There is an anonymous 2-byte hole after sq_family,
+		 * make sure to clear it.
+		 */
+		memset(addr, 0, sizeof(*addr));
+
 		addr->sq_family = AF_QIPCRTR;
 		addr->sq_node = cb->src_node;
 		addr->sq_port = cb->src_port;
