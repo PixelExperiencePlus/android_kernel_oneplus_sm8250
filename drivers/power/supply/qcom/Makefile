@@ -2,9 +2,9 @@
 
 ifeq ($(CONFIG_OPLUS_CHARGER),y)
 ccflags-$(CONFIG_OPLUS_CHARGER) += -DOPLUS_FEATURE_CHG_BASIC
-obj-$(CONFIG_QPNP_SMB5)		+= step-chg-jeita.o battery.o pmic-voter.o storm-watch.o schgm-flash.o
+obj-$(CONFIG_QPNP_SMB5)		+= step-chg-jeita.o battery.o qpnp-smb5.o smb5-lib.o pmic-voter.o storm-watch.o schgm-flash.o
 else
-obj-$(CONFIG_QPNP_SMB5)			+= step-chg-jeita.o battery.o qpnp-smb5.o smb5-lib.o pmic-voter.o storm-watch.o schgm-flash.o
+obj-$(CONFIG_QPNP_SMB5)		+= step-chg-jeita.o battery.o qpnp-smb5.o smb5-lib.o pmic-voter.o storm-watch.o schgm-flash.o
 endif
 
 obj-$(CONFIG_SMB1360_CHARGER_FG)	+= smb1360-charger-fg.o
