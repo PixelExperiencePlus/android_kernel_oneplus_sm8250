@@ -438,9 +438,8 @@ LINUXINCLUDE    := \
 KBUILD_AFLAGS   := -D__ASSEMBLY__
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar \
-		   -Werror-implicit-function-declaration -Wno-unused-but-set-variable \
-		   -Wno-format-security -Wno-unsequenced -Wno-void-pointer-to-int-cast -Wno-unused-variable -Wno-pointer-to-int-cast -Wno-pointer-to-enum-cast \
-		   -Wno-fortify-source -Wno-strlcpy-strlcat-size \
+		   -Werror-implicit-function-declaration \
+		   -Wno-format-security \
 		   -std=gnu89
 
 # Enable Clang Polly optimizations
