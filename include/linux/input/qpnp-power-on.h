@@ -91,6 +91,7 @@ struct qpnp_pon {
 	bool                    support_twm_config;
 	bool			resin_pon_reset;
 	ktime_t			kpdpwr_last_release_time;
+	bool			log_kpd_event;
 	struct notifier_block   pon_nb;
 	bool			legacy_hard_reset_offset;
 };
