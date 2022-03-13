@@ -913,8 +913,10 @@ int dwc3_core_init(struct dwc3 *dwc)
 
 	dwc3_cache_hwparams(dwc);
 	dwc3_check_params(dwc);
+	dwc3_debugfs_init(dwc);
 	ret = dwc3_get_dr_mode(dwc);
 	if (ret) {
+		dwc3_debugfs_exit(dwc);
 		ret = -EINVAL;
 		goto err0;
 	}
@@ -1599,7 +1601,6 @@ skip_clk_reset:
 	count++;
 
 	pm_runtime_allow(dev);
-	dwc3_debugfs_init(dwc);
 	return 0;
 
 err3:
@@ -1778,7 +1779,7 @@ static int dwc3_resume_common(struct dwc3 *dwc, pm_message_t msg)
 		if (PMSG_IS_AUTO(msg))
 			break;
 
-		ret = dwc3_core_init(dwc);
+		ret = dwc3_core_init_for_resume(dwc);
 		if (ret)
 			return ret;
 
