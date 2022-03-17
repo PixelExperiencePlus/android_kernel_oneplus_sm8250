@@ -1223,8 +1223,8 @@ static u32 msm_pcie_reg_copy(struct msm_pcie_dev_t *pcie_dev,
 {
 	u32 ret = 0, val, i;
 
-	PCIE_DUMP(pcie_dev, "RC%d buf=%#x size=%u, reg_len=%u\n",
-		pcie_dev->rc_idx, buf, size, reg_len);
+	PCIE_DUMP(pcie_dev, "RC%d buf=0x%x size=%u, reg_len=%u\n",
+		pcie_dev->rc_idx, *buf, size, reg_len);
 
 	for (i = 0; (reg_list->name) && (i + reg_len <= size);
 	     i += reg_len) {
@@ -1257,8 +1257,8 @@ int msm_pcie_reg_dump(struct pci_dev *pci_dev, u8 *buff, u32 len)
 		return -ENODEV;
 	}
 
-	PCIE_DUMP(pcie_dev, "RC%d hang event dump buff=%#x len=%u\n",
-		pcie_dev->rc_idx, buff, len);
+	PCIE_DUMP(pcie_dev, "RC%d hang event dump buff=0x%x len=%u\n",
+		pcie_dev->rc_idx, *buff, len);
 
 	offset = msm_pcie_reg_copy(pcie_dev, buff, len,
 			pcie_dev->parf, parf_reg_dump, 4);
