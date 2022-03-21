@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
  */
+#include <linux/debugfs.h>
 #include <linux/errno.h>
 #include <linux/delay.h>
 #include <linux/io.h>
@@ -16,7 +17,6 @@
 #include <linux/of.h>
 #include <linux/dma-buf.h>
 #include <linux/ion_kernel.h>
-#include <linux/proc_fs.h>
 
 #include <soc/qcom/scm.h>
 #include <soc/qcom/qseecomi.h>
@@ -1130,7 +1130,7 @@ static ssize_t tzdbgfs_read_unencrypted(struct file *file, char __user *buf,
 	size_t count, loff_t *offp)
 {
 	int len = 0;
-	int tz_id = *(int *)(PDE_DATA(file_inode(file)));
+	int tz_id = *(int *)(file->private_data);
 
 	if (tz_id == TZDBG_BOOT || tz_id == TZDBG_RESET ||
 		tz_id == TZDBG_INTERRUPT || tz_id == TZDBG_GENERAL ||
@@ -1195,7 +1195,7 @@ static ssize_t tzdbgfs_read_encrypted(struct file *file, char __user *buf,
 				      size_t count, loff_t *offp)
 {
 	int len = 0, ret = 0;
-	int tz_id = *(int *)(PDE_DATA(file_inode(file)));
+	int tz_id = *(int *)(file->private_data);
 	struct tzdbg_stat *stat = &(tzdbg.stat[tz_id]);
 
 	pr_debug("%s: tz_id = %d\n", __func__, tz_id);
@@ -1235,11 +1235,11 @@ static ssize_t tzdbgfs_read_encrypted(struct file *file, char __user *buf,
 static ssize_t tzdbgfs_read(struct file *file, char __user *buf,
 			    size_t count, loff_t *offp)
 {
-	struct seq_file *seq = PDE_DATA(file_inode(file));
+	struct seq_file *seq = file->private_data;
 	int tz_id = TZDBG_STATS_MAX;
 
 	if (seq)
-		tz_id = *(int *)(PDE_DATA(file_inode(file)));
+		tz_id = *(int *)(seq->private);
 	else {
 		pr_err("%s: Seq data null unable to proceed\n", __func__);
 		return 0;
@@ -1413,10 +1413,10 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 {
 	int rc = 0;
 	int i;
-	struct proc_dir_entry *dent_dir    = NULL;
-	struct proc_dir_entry *dent        = NULL;
+	struct dentry           *dent_dir;
+	struct dentry           *dent;
 
-	dent_dir = proc_mkdir("tzdbg", NULL);
+	dent_dir = debugfs_create_dir("tzdbg", NULL);
 	if (dent_dir == NULL) {
 		dev_err(&pdev->dev, "tzdbg debugfs_create_dir failed\n");
 		return -ENOMEM;
@@ -1424,9 +1424,9 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 
 	for (i = 0; i < TZDBG_STATS_MAX; i++) {
 		tzdbg.debug_tz[i] = i;
-		dent = proc_create_data(tzdbg.stat[i].name,
-				0444, dent_dir
-				, &tzdbg_fops, &tzdbg.debug_tz[i]);
+		dent = debugfs_create_file_unsafe(tzdbg.stat[i].name,
+				0444, dent_dir,
+				&tzdbg.debug_tz[i], &tzdbg_fops);
 		if (dent == NULL) {
 			dev_err(&pdev->dev, "TZ debugfs_create_file failed\n");
 			rc = -ENOMEM;
@@ -1437,16 +1437,16 @@ static int  tzdbgfs_init(struct platform_device *pdev)
 	platform_set_drvdata(pdev, dent_dir);
 	return 0;
 err:
-	proc_remove(dent_dir);
+	debugfs_remove_recursive(dent_dir);
 
 	return rc;
 }
 
 static void tzdbgfs_exit(struct platform_device *pdev)
 {
-	struct proc_dir_entry *dent_dir;
+	struct dentry *dent_dir;
 	dent_dir = platform_get_drvdata(pdev);
-	proc_remove(dent_dir);
+	debugfs_remove_recursive(dent_dir);
 }
 
 static int __update_hypdbg_base(struct platform_device *pdev,

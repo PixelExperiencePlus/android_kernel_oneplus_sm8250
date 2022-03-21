@@ -87,7 +87,6 @@ static int qcom_smd_qrtr_probe(struct rpmsg_device *rpdev)
 	dev_set_drvdata(&rpdev->dev, qdev);
 
 	pr_err("%s:SMD QRTR driver probed\n", __func__);
-	dev_dbg(&rpdev->dev, "SMD QRTR driver probed\n");
 
 	return 0;
 }
