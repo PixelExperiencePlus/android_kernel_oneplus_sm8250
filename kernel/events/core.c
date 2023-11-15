@@ -1948,6 +1948,10 @@ static void perf_group_detach(struct perf_event *event)
 		list_del_init(&event->sibling_list);
 		event->group_leader->nr_siblings--;
 		event->group_leader->group_generation++;
+
+		if (event->shared)
+			event->group_leader = event;
+
 		goto out;
 	}
 
